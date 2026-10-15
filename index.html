@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#07090d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lanternfall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<canvas id="overlay"></canvas>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+  <div id="hudTop">
+    <div class="dawn"><span class="moon"></span><div class="bar"><div id="dawnFill"></div></div><span id="dawnTxt"></span></div>
+    <div id="altarRow"></div>
+  </div>
+  <div id="teamList"></div>
+  <div id="hudBottomL">
+    <div id="vHud">
+      <div class="meter"><label data-i18n="hud_oil"></label><div class="bar oil"><div id="oilFill"></div></div><span id="lantIcon"></span></div>
+      <div class="meter"><label data-i18n="hud_stamina"></label><div class="bar stam"><div id="stamFill"></div></div><span id="cansTxt"></span></div>
+      <div class="slots">
+        <div class="slot" id="slotItem"><img alt=""><span class="k"></span><span class="nm"></span></div>
+        <div class="slot" id="slotAb"><img alt=""><span class="k"></span><span class="nm"></span><div class="cd"></div></div>
+      </div>
+    </div>
+    <div id="mHud" class="hidden">
+      <div class="meter" id="mHp"><label data-i18n="hud_hp"></label><div class="hearts"></div></div>
+      <div class="slots">
+        <div class="slot" id="mAb0"><span class="k"></span><span class="nm"></span><div class="cd"></div></div>
+        <div class="slot" id="mAb1"><span class="k"></span><span class="nm"></span><div class="cd"></div></div>
+        <div class="slot" id="mAb2"><span class="k"></span><span class="nm"></span><div class="cd"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="prompt"></div>
+  <div id="bigHint"></div>
+  <div id="announce"></div>
+  <button id="pauseBtn" aria-label="pause">II</button>
+</div>
+
+<!-- touch controls -->
+<div id="touch">
+  <div id="touchStick"></div>
+  <div id="stickBase"></div><div id="stickKnob"></div>
+  <div id="tButtons">
+    <div class="tb big" data-tb="a"><span class="tl" id="tbA"></span></div>
+    <div class="tb" data-tb="b"><span class="tl" id="tbB"></span></div>
+    <div class="tb" data-tb="c"><span class="tl" id="tbC"></span></div>
+    <div class="tb" data-tb="d"><span class="tl" id="tbD"></span></div>
+    <div class="tb small" data-tb="sprint"><span class="tl" data-i18n="btn_sprint"></span></div>
+    <div class="tb small" data-tb="ping"><span class="tl" data-i18n="btn_ping"></span></div>
+  </div>
+  <div id="pingWheel">
+    <div class="pw" data-pw="1" data-i18n="ping1"></div><div class="pw" data-pw="2" data-i18n="ping2"></div>
+    <div class="pw" data-pw="3" data-i18n="ping3"></div><div class="pw" data-pw="4" data-i18n="ping4"></div>
+  </div>
+</div>
+
+<!-- ============ SCREENS ============ -->
+<div id="screens">
+  <section class="screen" id="scrTitle">
+    <div class="logo"><div class="logoMain" data-i18n="title"></div><div class="logoSub" data-i18n="subtitle"></div></div>
+    <div class="menu">
+      <button data-go="solo" data-i18n="solo"></button>
+      <button data-go="couch" data-i18n="couch"></button>
+      <button data-go="online" data-i18n="online"></button>
+      <button data-go="howto" data-i18n="howto"></button>
+      <button data-go="settings" data-i18n="settings"></button>
+    </div>
+    <div class="langs" id="titleLangs"></div>
+    <a class="gh" href="https://github.com/RBlackwood224" target="_blank" rel="noopener">github.com/RBlackwood224</a>
+  </section>
+
+  <section class="screen" id="scrSolo">
+    <h2 data-i18n="solo"></h2>
+    <div class="panel">
+      <div class="row"><span class="lbl" data-i18n="chooseSide"></span>
+        <div class="seg" id="soloSide"><button data-v="v" data-i18n="side_v"></button><button data-v="m" data-i18n="side_m"></button></div></div>
+      <div id="soloRoleWrap"><div class="lbl" data-i18n="role"></div><div class="cards" id="soloRoles"></div></div>
+      <div id="soloCrWrap"><div class="lbl" data-i18n="creature"></div><div class="cards" id="soloCreatures"></div></div>
+      <div class="grid2">
+        <label><span data-i18n="aiCount"></span><select id="soloAi"></select></label>
+        <label><span data-i18n="difficulty"></span><select id="soloDiff"></select></label>
+        <label><span data-i18n="nightLen"></span><select id="soloLen"></select></label>
+        <label><span data-i18n="special"></span><select id="soloSpecial"></select></label>
+      </div>
+      <p class="hint" id="soloSpecialD"></p>
+    </div>
+    <div class="menu row2"><button data-go="title" data-i18n="back"></button><button class="primary" id="soloStart" data-i18n="start"></button></div>
+  </section>
+
+  <section class="screen" id="scrCouch">
+    <h2 data-i18n="couchTitle"></h2>
+    <div class="panel">
+      <p class="hint" data-i18n="couchHint"></p>
+      <div class="couchSlots" id="couchSlots"></div>
+      <div class="grid2">
+        <label><span data-i18n="aiCount"></span><select id="couchAi"></select></label>
+        <label><span data-i18n="difficulty"></span><select id="couchDiff"></select></label>
+        <label><span data-i18n="nightLen"></span><select id="couchLen"></select></label>
+        <label><span data-i18n="special"></span><select id="couchSpecial"></select></label>
+      </div>
+    </div>
+    <div class="menu row2"><button data-go="title" data-i18n="back"></button><button class="primary" id="couchStart" data-i18n="start"></button></div>
+  </section>
+
+  <section class="screen" id="scrOnline">
+    <h2 data-i18n="online"></h2>
+    <div class="panel">
+      <label class="full"><span data-i18n="yourName"></span><input id="netName" maxlength="14" autocomplete="off"></label>
+      <div class="menu"><button class="primary" id="btnHost" data-i18n="hostGame"></button></div>
+      <div class="joinRow"><input id="joinCode" maxlength="5" placeholder="ABCDE" autocomplete="off"><button id="btnJoin" data-i18n="joinBtn"></button></div>
+      <p class="hint" id="netStatus"></p>
+      <p class="hint" data-i18n="langNote"></p>
+    </div>
+    <div class="menu"><button data-go="title" data-i18n="back"></button></div>
+  </section>
+
+  <section class="screen" id="scrLobby">
+    <h2><span data-i18n="lobby"></span> · <span id="lobbyCode"></span></h2>
+    <div class="lobbyCols">
+      <div class="panel">
+        <div class="menu"><button id="btnCopy" data-i18n="copyLink"></button></div>
+        <div class="lbl" data-i18n="players"></div>
+        <ul id="lobbyPlayers"></ul>
+        <p class="hint" data-i18n="langNote"></p>
+      </div>
+      <div class="panel">
+        <div class="row"><span class="lbl" data-i18n="chooseSide"></span>
+          <div class="seg" id="lobSide"><button data-v="v" data-i18n="side_v"></button><button data-v="m" data-i18n="side_m"></button></div></div>
+        <label><span data-i18n="role"></span><select id="lobRole"></select></label>
+        <label><span data-i18n="creature"></span><select id="lobCreature"></select></label>
+        <div id="lobHostSettings" class="grid2">
+          <label><span data-i18n="monsterMode"></span><select id="lobMM"></select></label>
+          <label><span data-i18n="aiCount"></span><select id="lobAi"></select></label>
+          <label><span data-i18n="difficulty"></span><select id="lobDiff"></select></label>
+          <label><span data-i18n="nightLen"></span><select id="lobLen"></select></label>
+          <label><span data-i18n="special"></span><select id="lobSpecial"></select></label>
+        </div>
+        <p class="hint" id="lobWait" data-i18n="waitingHost"></p>
+      </div>
+    </div>
+    <div class="menu row2"><button id="btnLeave" data-i18n="back"></button><button class="primary" id="btnLobbyStart" data-i18n="start"></button></div>
+  </section>
+
+  <section class="screen" id="scrHowto">
+    <h2 data-i18n="howto"></h2>
+    <div class="panel howto"><h3 id="htTitle"></h3><p id="htText"></p><div class="dots" id="htDots"></div>
+      <div class="keys"><h3 data-i18n="keysTitle"></h3><p id="keysKb"></p><p id="keysPad"></p><p id="keysKbM"></p></div></div>
+    <div class="menu row3"><button id="htPrev">◀</button><button data-go="back" data-i18n="back"></button><button id="htNext">▶</button></div>
+  </section>
+
+  <section class="screen" id="scrSettings">
+    <h2 data-i18n="settings"></h2>
+    <div class="panel">
+      <label><span data-i18n="language"></span><select id="setLang"></select></label>
+      <label><span data-i18n="sfxVol"></span><input type="range" id="setSfx" min="0" max="10" step="1"></label>
+      <label><span data-i18n="musVol"></span><input type="range" id="setMus" min="0" max="10" step="1"></label>
+      <p class="hint" data-i18n="musicHint"></p>
+      <div class="menu"><button id="btnFs" data-i18n="fullscreen"></button></div>
+    </div>
+    <div class="menu"><button data-go="back" data-i18n="back"></button></div>
+  </section>
+
+  <section class="screen overlay" id="scrPause">
+    <h2 data-i18n="paused"></h2>
+    <div class="menu">
+      <button id="btnResume" data-i18n="resume"></button>
+      <button data-go="howto" data-i18n="howto"></button>
+      <button data-go="settings" data-i18n="settings"></button>
+      <button id="btnQuit" data-i18n="quit"></button>
+    </div>
+  </section>
+
+  <section class="screen overlay" id="scrEnd">
+    <h2 id="endTitle"></h2>
+    <p id="endReason" class="hint"></p>
+    <div class="panel"><table id="endStats"></table></div>
+    <div class="menu row2" id="endBtns">
+      <button id="btnRematch" data-i18n="rematch"></button>
+      <button id="btnEndMenu" data-i18n="quit"></button>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+<div id="rotate"><div data-i18n="rotate"></div></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/map.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/art.js"></script>
+<script src="js/render.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/net.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
