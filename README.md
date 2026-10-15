@@ -1,4 +1,4 @@
-# Lanternfall
+# Lanternfall Beta
 
 **Hunt of the Wisp** — a dark pixel-art survival game for the browser.
 
